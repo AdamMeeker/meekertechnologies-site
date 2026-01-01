@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Azure Functions
+api/local.settings.json
+api/.python_packages/
+api/bin/
+api/obj/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
