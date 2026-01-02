@@ -67,16 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const btnLoading = submitBtn.querySelector('.btn-loading');
             const formStatus = document.getElementById('form-status');
 
-            // Check honeypot
-            const honeypot = contactForm.querySelector('input[name="website"]');
-            if (honeypot && honeypot.value) {
-                // Bot detected, silently fail
-                formStatus.textContent = 'Thank you for your message!';
-                formStatus.className = 'form-status success';
-                contactForm.reset();
-                return;
-            }
-
             // Disable button and show loading
             submitBtn.disabled = true;
             btnText.style.display = 'none';
@@ -91,25 +81,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 email: formData.get('email'),
                 company: formData.get('company'),
                 interests: formData.getAll('interest'),
-                message: formData.get('message')
+                message: formData.get('message'),
+                honeypot: formData.get('website') // honeypot field
             };
 
-            // Build mailto link - this guarantees delivery via user's email client
-            const subject = encodeURIComponent(`Meeker Technologies Inquiry from ${data.name}`);
-            const body = encodeURIComponent(
-                `Name: ${data.name}\n` +
-                `Email: ${data.email}\n` +
-                `Company: ${data.company || 'Not provided'}\n` +
-                `Interests: ${data.interests.join(', ') || 'Not specified'}\n\n` +
-                `Message:\n${data.message || 'No message provided'}`
-            );
+            try {
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            // Open email client
-            window.location.href = `mailto:hello@meekertechnologies.com?subject=${subject}&body=${body}`;
+                const result = await response.json();
 
-            // Show success message
-            formStatus.textContent = 'Opening your email client to send...';
-            formStatus.className = 'form-status success';
+                if (response.ok && result.success) {
+                    formStatus.textContent = result.message || 'Thank you! We\'ll be in touch within 24 hours.';
+                    formStatus.className = 'form-status success';
+                    contactForm.reset();
+                } else {
+                    formStatus.textContent = result.error || 'Something went wrong. Please try again.';
+                    formStatus.className = 'form-status error';
+                }
+            } catch (error) {
+                console.error('Contact form error:', error);
+                formStatus.textContent = 'Unable to send message. Please try again later.';
+                formStatus.className = 'form-status error';
+            }
+
             formStatus.style.display = 'block';
 
             // Re-enable button
