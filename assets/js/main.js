@@ -94,39 +94,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 message: formData.get('message')
             };
 
-            try {
-                // Send to Azure Function (or other backend)
-                const response = await fetch('/api/contact', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+            // Build mailto link - this guarantees delivery via user's email client
+            const subject = encodeURIComponent(`Meeker Technologies Inquiry from ${data.name}`);
+            const body = encodeURIComponent(
+                `Name: ${data.name}\n` +
+                `Email: ${data.email}\n` +
+                `Company: ${data.company || 'Not provided'}\n` +
+                `Interests: ${data.interests.join(', ') || 'Not specified'}\n\n` +
+                `Message:\n${data.message || 'No message provided'}`
+            );
 
-                if (response.ok) {
-                    formStatus.textContent = 'Thank you! We\'ll be in touch within 24 hours.';
-                    formStatus.className = 'form-status success';
-                    contactForm.reset();
-                } else {
-                    throw new Error('Failed to send message');
-                }
-            } catch (error) {
-                // Fallback: Open email client
-                const subject = encodeURIComponent(`Meeker Technologies Inquiry from ${data.name}`);
-                const body = encodeURIComponent(
-                    `Name: ${data.name}\n` +
-                    `Email: ${data.email}\n` +
-                    `Company: ${data.company || 'Not provided'}\n` +
-                    `Interests: ${data.interests.join(', ') || 'Not specified'}\n\n` +
-                    `Message:\n${data.message || 'No message provided'}`
-                );
+            // Open email client
+            window.location.href = `mailto:hello@meekertechnologies.com?subject=${subject}&body=${body}`;
 
-                window.location.href = `mailto:hello@meekertechnologies.com?subject=${subject}&body=${body}`;
-
-                formStatus.textContent = 'Opening your email client...';
-                formStatus.className = 'form-status success';
-            }
+            // Show success message
+            formStatus.textContent = 'Opening your email client to send...';
+            formStatus.className = 'form-status success';
+            formStatus.style.display = 'block';
 
             // Re-enable button
             submitBtn.disabled = false;
