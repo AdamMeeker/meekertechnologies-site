@@ -175,16 +175,9 @@ ul {
 }
 
 .logo-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-    color: white;
-    font-size: var(--font-size-sm);
-    font-weight: 700;
-    border-radius: var(--radius-md);
+    object-fit: contain;
 }
 
 .logo-text {
@@ -1064,7 +1057,6 @@ ul {
 .footer-brand .logo-icon {
     width: 28px;
     height: 28px;
-    font-size: 0.7rem;
 }
 
 .footer-tagline {
